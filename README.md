@@ -1,6 +1,4 @@
-# lp-fatec
---------
-## **DESAFIO - Linguagem de Programação 2° Semestre**
+# **DESAFIO - Linguagem de Programação 2° Semestre**
 ---------
 Escreva um programa que tem a estrutura de dados abaixo:
 - Nome.
