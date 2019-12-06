@@ -81,7 +81,7 @@ int main()
         switch (operacao)
         {
         case 1:
-            incluir_usuario(p_infos, tam); //passa como parametro o ponteiro para a estrutura e o n. de bytes da desta
+            incluir_usuario(p_infos, tam);
 
             system("cls");
             break;
@@ -241,7 +241,7 @@ void listar_usuarios(struct dados *inf_a_gravar, int tam)
         fread(inf_a_gravar, tam, 1, arquivo);
 
         // Verifica se o mesmo esta apagado:
-        if (inf_a_gravar->nome[0] != '*')
+        if (inf_a_gravar->nome[0] != '\0')
         {
             // Imprime o registro na tela:
             printf("%-5d\t %-16s %-10s\t\t %5d/%d/%d\t\t %10.2f\n\n", i, inf_a_gravar->nome, inf_a_gravar->estado_civil, inf_a_gravar->dia_nasc, inf_a_gravar->mes_nasc, inf_a_gravar->ano_nasc, inf_a_gravar->salario);
@@ -641,9 +641,11 @@ void alterar_usuario(struct dados *inf_a_gravar, int tam)
 void excluir_usuario(struct dados *inf_a_gravar, int tam)
 {
     FILE *arquivo;
+    int n_reg, n_bytes;
+    char resposta;
+
+
     arquivo = fopen("usuarios.txt", "r+");
-    int n_reg;
-    int n_bytes;
 
     // Pesquisa pelo nome o registro do usuario no arquivo:
     n_reg = pesq_por_nome(inf_a_gravar, tam);
@@ -656,13 +658,53 @@ void excluir_usuario(struct dados *inf_a_gravar, int tam)
 
     // Le o registro do arquivo:
     fread(inf_a_gravar, tam, 1, arquivo);
-    printf("nome para apagar e' %s\n", inf_a_gravar->nome);
-    //apaga o registro do arquivo
+    printf("O usuario a ser apagado e' %s. Confirma? (S/N)\n", inf_a_gravar->nome);
+    scanf("%c", &resposta);
+    fflush(stdin);
 
-    printf("nome para apagar e' %s\n", inf_a_gravar->nome);
+    if (resposta == 'S' || resposta ==  's')
+    {
+            inf_a_gravar->nome[0] = '\0';
+            inf_a_gravar->estado_civil[0] = '\0';
+            inf_a_gravar->dia_nasc = 0;
+            inf_a_gravar->mes_nasc = 0;
+            inf_a_gravar->ano_nasc = 0;
+            inf_a_gravar->salario = 0;
 
-    fseek(arquivo, n_bytes, 0);            //posiciona o ponteiro do arquivo no inicio do regisro a ser apagado
-    fwrite(inf_a_gravar, tam, 1, arquivo); //escreve o registro
+            // Posiciona o ponteiro do arquivo no inicio do regisro a ser alterado:
+            fseek(arquivo, n_bytes, 0);
 
-    fclose(arquivo);
+            // Escreve o registro no arquivo:
+            fwrite(inf_a_gravar, tam, 1, arquivo);
+
+            fclose(arquivo);
+
+            system("cls");
+
+
+    }
+
+    else
+    {
+        printf("Deseja procurar outro usuario para excluir ao inves desse? (S/N)");
+        scanf("%c", &resposta);
+        fflush(stdin);
+
+        if (resposta == 'S' || resposta ==  's')
+        {
+            fclose(arquivo);
+
+            excluir_usuario(inf_a_gravar, tam);
+        }
+
+        else
+        {
+
+            fclose(arquivo);
+
+            system("cls");
+        }
+        
+    }
+
 }
