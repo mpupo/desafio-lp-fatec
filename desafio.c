@@ -1,11 +1,20 @@
 /*
-Escreva um programa que tem a estrutura de dados abaixo:
+NOME: Desafio Linguagem de Programacao
+AUTOR: Murilo Pupo de Oliveira
+Turma: ADS 2N 2019
+
+DESCRICAO: 
+O código abaixo consiste em um programa que realiza, basicamente, 4 operacoes: criar, ler, alterar e deletar usuarios.
+Para isso, utiliza dois arquivos de texto: contador e usuarios. O arquivo contador, como o nome diz, conta a quantidade
+de usuarios cadastrados, enquanto o arquivo usuarios guarda as informacoes registradas.
+
+As informacoes do usuario estao modeladas da seguinte maneira:
 - Nome.
 - Data de nascimento.
 - Estado civil.
 - Salário.
 
-O programa tem as seguintes opções de menu:
+Cobrindo as operações citadas anteriormente, o programa tem as seguintes opções de menu:
 1.  Entrar dados.
 2.  Listar dados na tela.
 3.  Pesquisar um usuário por nome.
@@ -16,12 +25,6 @@ O programa tem as seguintes opções de menu:
 8.  Alterar dados de um usuário.
 9.  Excluir dados de um usuário.
 10. Saída
-
-Todas as operações devem ser feitas direto no arquivo. (utilize a função fseek).
-
-**Obs.:** a estrutura de dados deve ser variável local na função main().
-
-**Obs.:** o programa deve ser finalizado pelo usuário.
 */
 
 #include <stdio.h>
@@ -136,14 +139,20 @@ int main()
 void incluir_usuario(struct dados *inf_a_gravar, int tam)
 {
     FILE *arquivo, *arq_contador;
-    int cont = 0;
-    int i;
+    int cont = 0;                  // Contador de usuarios.
 
+    // Abre o arquivo de contador de usuarios para leitura dos dados para a variavel cont:
     arq_contador = fopen("contador.txt", "r");
     fscanf(arq_contador, "%d", &cont);
     fclose(arq_contador);
 
-    //zera os dados da estrutura
+    // Zera os dados da estrutura:
+    inf_a_gravar->nome[0] = '\0';
+    inf_a_gravar->estado_civil[0] = '\0';
+    inf_a_gravar->dia_nasc = 0;
+    inf_a_gravar->mes_nasc = 0;
+    inf_a_gravar->ano_nasc = 0;
+    inf_a_gravar->salario = 0;
 
     arquivo = fopen("usuarios.txt", "a");
 
@@ -159,7 +168,7 @@ void incluir_usuario(struct dados *inf_a_gravar, int tam)
     printf("*                           INCLUIR NOVO USUARIO                                 *\n");
     printf("**********************************************************************************\n");
 
-    //aqui os dados sao recebidos via teclado
+    // Recebimento dos dados do usuario:
     printf("Digite o nome do usuario:");
     gets(inf_a_gravar->nome);
 
@@ -195,9 +204,13 @@ void incluir_usuario(struct dados *inf_a_gravar, int tam)
 
     fwrite(inf_a_gravar, tam, 1, arquivo);
     fclose(arquivo);
-
+    
+    -------------------------------------------------------------------------------------
+    
+    // Contabiliza o novo usuario:
     cont++;
 
+    // Atualiza o arquivo contador com a nova quantidade de usuarios:
     arq_contador = fopen("contador.txt", "w");
     fprintf(arq_contador, "%d", cont);
     fclose(arq_contador);
@@ -206,18 +219,20 @@ void incluir_usuario(struct dados *inf_a_gravar, int tam)
 void listar_usuarios(struct dados *inf_a_gravar, int tam)
 {
     FILE *arquivo, *arq_contador;
-    int cont, comp;
+    int cont;                 // Contador de usuarios.
+    int comp;                 // Comprimento da struct.
 
+    // Abre o arquivo de contador de usuarios para leitura dos dados para a variavel cont:
     arq_contador = fopen("contador.txt", "r");
     fscanf(arq_contador, "%d", &cont);
-    printf("%d\n", cont);
     fclose(arq_contador);
 
-    arquivo = fopen("usuarios.txt", "r"); /*r" --> Abre o arquivo apenas para leitura.*/
+    // Abre o arquivo apenas para leitura ("r"):
+    arquivo = fopen("usuarios.txt", "r"); 
 
     if (arquivo == NULL)
     {
-        puts("\nERRO\n");
+        puts("\nERRO AO ABRIR O ARQUIVO!\n");
         exit(1);
     }
 
@@ -229,10 +244,10 @@ void listar_usuarios(struct dados *inf_a_gravar, int tam)
     printf("\nN. Reg\t| Nome\t\t| Estado Civil\t\t| Data de Nascimento \t| Salario \t|\n");
     printf("---------------------------------------------------------------------------------\n");
 
-    for (int i = 0; i < cont; i++)
+    for (int registro = 0; registro < cont; registro++)
     {
-        // Calcula o n. de bytes para posicionar o ponteiro do arquivo:
-        comp = i * tam;
+        // Calcula o n. de bytes de acordo com o registro para posicionar o ponteiro do arquivo:
+        comp = registro * tam;
 
         // Posiciona o ponteiro no inicio do registro dentro do arquivo:
         fseek(arquivo, comp, 0);
@@ -244,7 +259,7 @@ void listar_usuarios(struct dados *inf_a_gravar, int tam)
         if (inf_a_gravar->nome[0] != '\0')
         {
             // Imprime o registro na tela:
-            printf("%-5d\t %-16s %-10s\t\t %5d/%d/%d\t\t %10.2f\n\n", i, inf_a_gravar->nome, inf_a_gravar->estado_civil, inf_a_gravar->dia_nasc, inf_a_gravar->mes_nasc, inf_a_gravar->ano_nasc, inf_a_gravar->salario);
+            printf("%-5d\t %-16s %-10s\t\t %5d/%d/%d\t\t %10.2f\n\n", registro, inf_a_gravar->nome, inf_a_gravar->estado_civil, inf_a_gravar->dia_nasc, inf_a_gravar->mes_nasc, inf_a_gravar->ano_nasc, inf_a_gravar->salario);
         }
     }
 
@@ -270,21 +285,26 @@ int pesq_por_nome(struct dados *inf_a_gravar, int tam)
     printf("*                        PESQUISA DE USUARIO POR NOME                            *\n");
     printf("**********************************************************************************\n");
 
+    // Recebimento de dados:
     printf("Informe um nome para pesquisar:");
     gets(nome1);
 
+    // Abre o arquivo de contador de usuarios para leitura dos dados para a variavel cont:
     arq_contador = fopen("contador.txt", "r");
     fscanf(arq_contador, "%d", &cont);
     fclose(arq_contador);
 
+    // Abre o arquivo apenas para leitura ("r"):
     arquivo = fopen("usuarios.txt", "r");
 
+    // Headers da tabela:
     printf("\nN. Reg\t| Nome\t\t| Estado Civil\t\t| Data de Nascimento \t| Salario \t|\n");
     printf("---------------------------------------------------------------------------------\n");
 
     for (int registro = 0; registro < cont; registro++)
     {
         fread(inf_a_gravar, tam, 1, arquivo);
+        
         for (letra = 0; nome1[letra] != '\0'; letra++)
         {
             if (nome1[letra] != inf_a_gravar->nome[letra])
@@ -312,7 +332,7 @@ int pesq_por_ec(struct dados *inf_a_gravar, int tam)
     FILE *arquivo;
     FILE *arq_contador;
 
-    char ec[20];
+    char ec[20];                // Estado civil.
     int cont, letra;
     int registro_escolhido;
     int achou = 0;
@@ -323,21 +343,26 @@ int pesq_por_ec(struct dados *inf_a_gravar, int tam)
     printf("*                PESQUISA DE USUARIO POR ESTADO CIVIL                            *\n");
     printf("**********************************************************************************\n");
 
+    // Recebimento dos dados do usuario:
     printf("Informe um estado civil para pesquisar:");
     gets(ec);
 
+    // Abre o arquivo de contador de usuarios para leitura dos dados para a variavel cont:
     arq_contador = fopen("contador.txt", "r");
     fscanf(arq_contador, "%d", &cont);
     fclose(arq_contador);
 
+    // Abre o arquivo apenas para leitura ("r"):
     arquivo = fopen("usuarios.txt", "r");
 
+    // Headers da tabela:
     printf("\nN. Reg\t| Nome\t\t| Estado Civil\t\t| Data de Nascimento \t| Salario \t|\n");
     printf("---------------------------------------------------------------------------------\n");
 
     for (int registro = 0; registro < cont; registro++)
     {
         fread(inf_a_gravar, tam, 1, arquivo);
+        
         for (letra = 0; ec[letra] != '\0'; letra++)
         {
             if (ec[letra] != inf_a_gravar->estado_civil[letra])
@@ -348,6 +373,7 @@ int pesq_por_ec(struct dados *inf_a_gravar, int tam)
 
         if (ec[letra] == '\0' && inf_a_gravar->estado_civil[letra] == '\0')
         {
+            // Imprime o registro na tela:
             printf("%-5d\t %-16s %-10s\t\t %5d/%d/%d\t\t %10.2f\n\n", registro, inf_a_gravar->nome, inf_a_gravar->estado_civil, inf_a_gravar->dia_nasc, inf_a_gravar->mes_nasc, inf_a_gravar->ano_nasc, inf_a_gravar->salario);
             achou = 1;
         }
@@ -393,16 +419,20 @@ int pesq_por_aniv(struct dados *inf_a_gravar, int tam)
     printf("*                PESQUISA DE USUARIO POR ANIVERSARIO                             *\n");
     printf("**********************************************************************************\n");
 
+    // Recebimento dos dados do usuario:
     printf("Informe um mes (MM) para pesquisar usuarios que facam aniversario:");
     scanf("%d", &mes_aniv);
     fflush(stdin);
 
+    // Abre o arquivo de contador de usuarios para leitura dos dados para a variavel cont:
     arq_contador = fopen("contador.txt", "r");
     fscanf(arq_contador, "%d", &cont);
     fclose(arq_contador);
 
+    // Abre o arquivo apenas para leitura ("r"):
     arquivo = fopen("usuarios.txt", "r");
 
+    // Headers da tabela:
     printf("\nN. Reg\t| Nome\t\t| Estado Civil\t\t| Data de Nascimento \t| Salario \t|\n");
     printf("---------------------------------------------------------------------------------\n");
 
@@ -417,6 +447,7 @@ int pesq_por_aniv(struct dados *inf_a_gravar, int tam)
 
         else
         {
+            // Imprime o registro na tela:
             printf("%-5d\t %-16s %-10s\t\t %5d/%d/%d\t\t %10.2f\n\n", registro, inf_a_gravar->nome, inf_a_gravar->estado_civil, inf_a_gravar->dia_nasc, inf_a_gravar->mes_nasc, inf_a_gravar->ano_nasc, inf_a_gravar->salario);
             achou = 1;
         }
@@ -462,6 +493,7 @@ int pesq_por_sal(struct dados *inf_a_gravar, int tam)
     printf("*                PESQUISA DE USUARIO POR SALARIO                             *\n");
     printf("**********************************************************************************\n");
 
+    // Recebimento de dados:
     printf("Informe uma faixa salarial para realizar a pesquisa dos usuarios.\n");
     printf("Limite minimo:");
     scanf("%d", &sal_min);
@@ -471,12 +503,15 @@ int pesq_por_sal(struct dados *inf_a_gravar, int tam)
     scanf("%d", &sal_max);
     fflush(stdin);
 
+    // Abre o arquivo de contador de usuarios para leitura dos dados para a variavel cont:
     arq_contador = fopen("contador.txt", "r");
     fscanf(arq_contador, "%d", &cont);
     fclose(arq_contador);
 
+    // Abre o arquivo apenas para leitura ("r"):
     arquivo = fopen("usuarios.txt", "r");
 
+    // Headers da tabela
     printf("\nN. Reg\t| Nome\t\t| Estado Civil\t\t| Data de Nascimento \t| Salario \t|\n");
     printf("---------------------------------------------------------------------------------\n");
 
@@ -491,6 +526,7 @@ int pesq_por_sal(struct dados *inf_a_gravar, int tam)
 
         else
         {
+            // Imprime o registro na tela:
             printf("%-5d\t %-16s %-10s\t\t %5d/%d/%d\t\t %10.2f\n\n", registro, inf_a_gravar->nome, inf_a_gravar->estado_civil, inf_a_gravar->dia_nasc, inf_a_gravar->mes_nasc, inf_a_gravar->ano_nasc, inf_a_gravar->salario);
             achou = 1;
         }
@@ -535,6 +571,7 @@ void alterar_salario(struct dados *inf_a_gravar, int tam)
         // Determina o numero de bits para posterior uso na fseek:
         n_bytes = tam * n_reg;
 
+        // Abre o arquivo para leitura e alteracao ("r+"):
         arquivo = fopen("usuarios.txt", "r+");
 
         // Posiciona o ponteiro do arquivo no inicio do regisro a ser alterado:
@@ -582,6 +619,7 @@ void alterar_usuario(struct dados *inf_a_gravar, int tam)
         // Determina o numero de bits para posterior uso na fseek:
         n_bytes = tam * n_reg;
 
+        // Abre o arquivo para leitura e alteracao ("r+"):
         arquivo = fopen("usuarios.txt", "r+");
 
         // Posiciona o ponteiro do arquivo no inicio do regisro a ser alterado:
@@ -631,6 +669,7 @@ void alterar_usuario(struct dados *inf_a_gravar, int tam)
         fclose(arquivo);
 
         printf("\nUsuario alterado!\n");
+        
         printf("Digite enter para confirmar e voltar ao menu:");
         getchar();
 
@@ -644,7 +683,7 @@ void excluir_usuario(struct dados *inf_a_gravar, int tam)
     int n_reg, n_bytes;
     char resposta;
 
-
+    // Abre o arquivo para leitura e alteracao ("r+"):
     arquivo = fopen("usuarios.txt", "r+");
 
     // Pesquisa pelo nome o registro do usuario no arquivo:
@@ -658,12 +697,15 @@ void excluir_usuario(struct dados *inf_a_gravar, int tam)
 
     // Le o registro do arquivo:
     fread(inf_a_gravar, tam, 1, arquivo);
+    
+    // Valida o registro encontrado:
     printf("O usuario a ser apagado e' %s. Confirma? (S/N)\n", inf_a_gravar->nome);
     scanf("%c", &resposta);
     fflush(stdin);
 
     if (resposta == 'S' || resposta ==  's')
     {
+            // Apaga os dados da estrutura lida anteriormente:
             inf_a_gravar->nome[0] = '\0';
             inf_a_gravar->estado_civil[0] = '\0';
             inf_a_gravar->dia_nasc = 0;
@@ -674,14 +716,12 @@ void excluir_usuario(struct dados *inf_a_gravar, int tam)
             // Posiciona o ponteiro do arquivo no inicio do regisro a ser alterado:
             fseek(arquivo, n_bytes, 0);
 
-            // Escreve o registro no arquivo:
+            // Escreve no arquivo a estrutura apagada no registro selecionado:
             fwrite(inf_a_gravar, tam, 1, arquivo);
 
             fclose(arquivo);
 
             system("cls");
-
-
     }
 
     else
@@ -692,14 +732,16 @@ void excluir_usuario(struct dados *inf_a_gravar, int tam)
 
         if (resposta == 'S' || resposta ==  's')
         {
+            // Fecha conexao com arquivo para poder abrir novamente:
             fclose(arquivo);
 
+            // Recomeca o processo recursivamente:
             excluir_usuario(inf_a_gravar, tam);
         }
 
         else
         {
-
+            // Fecha conexao com o arquivo, pois nao tera uso.
             fclose(arquivo);
 
             system("cls");
