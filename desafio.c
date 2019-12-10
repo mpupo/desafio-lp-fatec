@@ -179,18 +179,35 @@ void incluir_usuario(struct dados *inf_a_gravar, int tam)
     {
         printf("Digite o dia de nascimento do usuario:");
         scanf("%d", &inf_a_gravar->dia_nasc);
+
+        if (inf_a_gravar->dia_nasc > 31 || inf_a_gravar->dia_nasc <= 0)
+        {
+            printf("\nDigite um valor valido.\n");
+        }
+
     } while (inf_a_gravar->dia_nasc > 31 || inf_a_gravar->dia_nasc <= 0);
 
     do
     {
         printf("Digite o mes de nascimento do usuario:");
         scanf("%d", &inf_a_gravar->mes_nasc);
+
+        if (inf_a_gravar->mes_nasc > 12 || inf_a_gravar->mes_nasc <= 0)
+        {
+            printf("\nDigite um mes valido.\n");
+        }
+
     } while (inf_a_gravar->mes_nasc > 12 || inf_a_gravar->mes_nasc <= 0);
 
     do
     {
         printf("Digite o ano de nascimento do usuario:");
         scanf("%d", &inf_a_gravar->ano_nasc);
+
+        if (inf_a_gravar->ano_nasc > 2019 || inf_a_gravar->ano_nasc <= 0)
+        {
+            printf("\nDigite um ano de nascimento valido.\n");
+        }
     } while (inf_a_gravar->ano_nasc > 2019 || inf_a_gravar->ano_nasc <= 0);
 
     do
@@ -198,6 +215,11 @@ void incluir_usuario(struct dados *inf_a_gravar, int tam)
         printf("Digite o salario do usuario:");
         scanf("%f", &inf_a_gravar->salario);
         fflush(stdin);
+
+        if (inf_a_gravar->salario < 0)
+        {
+            printf("\nDigite um salario valido. Ninguem paga para trabalhar!\n");
+        }
     } while (inf_a_gravar->salario < 0);
 
     printf("\nUsuario cadastrado!\n");
@@ -205,7 +227,7 @@ void incluir_usuario(struct dados *inf_a_gravar, int tam)
     fwrite(inf_a_gravar, tam, 1, arquivo);
     fclose(arquivo);
     
-    -------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------
     
     // Contabiliza o novo usuario:
     cont++;
